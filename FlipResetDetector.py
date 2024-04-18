@@ -1,11 +1,7 @@
 #FlipResetDetector.py 
 import time
-import random
 import numpy as np 
 import math
-import os
-
-from scipy.spatial.transform import Rotation
 
 from rlbot.agents.base_script import BaseScript
 from rlbot.utils.game_state_util import GameState, BallState, CarState, Physics, Vector3, Rotator, GameInfoState
@@ -106,8 +102,6 @@ class FlipResetDetector(BaseScript):
                 dir_to_ball = (ball_location - car_location) / np.linalg.norm(ball_location - car_location)
                 
                 under_ball = np.dot(car_up, dir_to_ball) > CAR_UNDER_THRESHOLD
-                facing_ball = np.dot(car_forward, dir_to_ball)
-                print(facing_ball)
 
  
                 wall_dis_check = ((-SIDE_WALL_X + 700.0) > car.physics.location.x) or \
