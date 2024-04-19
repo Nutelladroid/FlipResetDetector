@@ -16,9 +16,7 @@ class FlipResetDetector(BaseScript):
         self.game_interface.renderer.clear_screen()
         self.tick_skip = 8  # Check every 8 ticks to emulate a standard RLGym bot tick skip
         self.ticks = 0
-        self.JumpTimeCount = [0] * 8
         self.FlipTimeCount = [0] * 8
-        self.AirTimeCount = [0] * 8
         self.prevFlipTimeCount = [0] * 8
         self.prevHasFlipped = [False] * 8
         self.notOnWall = [False] * 8
@@ -96,7 +94,6 @@ class FlipResetDetector(BaseScript):
                 car_rotation = self._euler_to_rotation(car_rotation)
                 car_forward = car_rotation[0]
                 car_up = car_rotation[1]
-                car_right = car_rotation[2]
                 
 
                 car_location = np.array([car.physics.location.x, car.physics.location.y, car.physics.location.z])
@@ -119,20 +116,10 @@ class FlipResetDetector(BaseScript):
                 car_Fvelocity = np.dot(car_forward, car_velocity)
 
                 # Update counters
-                if car.jumped:
-                    self.JumpTimeCount[p] += 1
-                if on_ground:
-                    self.JumpTimeCount[p] = 0
-
                 if has_flipped:
                     self.FlipTimeCount[p] += 1
                 if on_ground:
                     self.FlipTimeCount[p] = 0
-
-                if not on_ground:
-                    self.AirTimeCount[p] += 1
-                if on_ground:
-                    self.AirTimeCount[p] = 0
 
                 self.notOnWall[p] = car.physics.location.z < 100
 
@@ -151,7 +138,7 @@ class FlipResetDetector(BaseScript):
                         self.render_text(f"Player {p}: Above Ball: {under_ball}, Got Reset: {self.hasReset[p]}")
                         self.last_render_time = time.time()
 
-                if self.notOnWall[p] and on_ground and self.prevHasFlipped[p] and self.prevFlipTimeCount[p] < 15 and self.flipAcc[p] > 300:
+                if self.notOnWall[p] and on_ground and self.prevHasFlipped[p] and self.prevFlipTimeCount[p] < (120/self.tick_skip) and self.flipAcc[p] > 300:
                     print(f"Player {p}: Maybe forward wave dashed")
 
                 self.prev_canJump[p] = canJump
